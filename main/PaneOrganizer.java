@@ -118,7 +118,13 @@ public class PaneOrganizer {
             this.board.redoAction();
         });
         Button save = new Button("Save");
+        save.setOnAction(e -> {
+            this.board.saveDrawing();
+        });
         Button load = new Button("Load");
+        load.setOnAction(e -> {
+            this.board.loadDrawing();
+        });
         buttonPanel.getChildren().addAll(shapeTitle, selectShape, drawWithPen, drawRectangle, drawEllipse, colorTitle,
                 colorPicker, shapeActionsTitle, fill, delete, raise, lower, operationsTitle, undo, redo, save, load);
         this.root.setLeft(buttonPanel);

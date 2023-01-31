@@ -2,12 +2,11 @@ package main;
 
 import java.util.ArrayList;
 import java.util.Stack;
-
 import commands.AddEllipseCommand;
 import commands.AddLineCommand;
 import commands.AddRectangleCommand;
 import commands.AddShapes;
-import commands.DeleteShape;
+import commands.DeleteShapeCommand;
 import commands.RaiseShapeCommand;
 import commands.SelectShape;
 import commands.ShapeFillCommand;
@@ -18,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Line;
+import javafx.scene.shape.Polyline;
 
 public class Board {
     private Pane pane;
@@ -29,7 +28,7 @@ public class Board {
     private Color selectedColor;
     private Stack<Command> undoStack = new Stack<>();
     private Stack<Command> redoStack = new Stack<>();
-    private ArrayList<Line> lines;
+    Polyline polyline;
 
     public Board(Pane pane) {
         this.pane = pane;
@@ -63,20 +62,18 @@ public class Board {
     public void addLine() {
         this.pane.setOnMousePressed(e -> {
             if (drawingEnabled && !selectEnabled) {
-                lines = new ArrayList<>();
+                polyline = new Polyline();
+                polyline.getPoints().addAll(e.getX(), e.getY());
+                shapeList.add(polyline);
+                this.pane.getChildren().add(polyline);
+                undoStack.push(new AddLineCommand(polyline, shapeList, pane));
+                redoStack.clear();
             }
         });
         this.pane.setOnMouseDragged(e -> {
             if (drawingEnabled && !selectEnabled) {
-                Line line = AddShapes.addLine(e, lines, selectedColor);
-                lines.add(line);
-                this.pane.getChildren().add(line);
+                polyline.getPoints().addAll(e.getX(), e.getY());
             }
-        });
-        this.pane.setOnMouseReleased(e -> {
-            shapeList.add(lines);
-            undoStack.push(new AddLineCommand(lines, shapeList, pane));
-            redoStack.clear();
         });
     }
 
@@ -126,7 +123,10 @@ public class Board {
 
     public void deleteShape() {
         if (selectEnabled) {
-            DeleteShape.deleteShape(selectedShape, pane, shapeList);
+            DeleteShapeCommand cmd = new DeleteShapeCommand(selectedShape, shapeList, pane);
+            cmd.execute();
+            undoStack.push(cmd);
+            redoStack.clear();
         }
     }
 
@@ -158,25 +158,23 @@ public class Board {
             Command cmd = undoStack.pop();
             cmd.undo();
             redoStack.push(cmd);
-            //
-            //
-            // IN THIS METHOD, IF THE COMMAND CLASS == LINE, RUN IT TWICE
-            // actually make this so it goes when it detects
-            //
-            //
         }
     }
 
     public void redoAction() {
         if (!redoStack.empty()) {
             Command cmd = redoStack.pop();
-            try {
-                cmd.execute();
-            } catch (Exception e) {
-                undoStack.push(cmd);
-                redoAction();
-            }
+            cmd.execute();
             undoStack.push(cmd);
         }
     }
+
+    public void saveDrawing() {
+
+    }
+
+    public void loadDrawing() {
+
+    }
+
 }
