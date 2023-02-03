@@ -5,15 +5,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import main.Board;
 
 public class TranslateShape {
     public static void translateShape(Pane pane, boolean selectEnabled,
-            ArrayList<Object> shapeList, Board board) {
+            ArrayList<Shape> shapeList, Board board) {
         pane.setOnMousePressed(e -> {
             if (selectEnabled && !e.isMetaDown()) {
                 boolean shapeClicked = false;
-                for (Object shape : shapeList) {
+                for (Shape shape : shapeList) {
                     if (shape instanceof Ellipse) {
                         Ellipse ellipse = (Ellipse) shape;
                         if (ellipse.contains(e.getX(), e.getY())) {
@@ -74,17 +75,23 @@ public class TranslateShape {
                     double shapeY = board.getSelectedShape().getBoundsInParent().getMinY();
                     double newWidth = mouseX - shapeX;
                     double newHeight = mouseY - shapeY;
-                    if (mouseX < shapeX) {
-                        newWidth = shapeX - mouseX;
-                    }
-                    if (mouseY < shapeY) {
-                        newHeight = shapeY - mouseY;
-                    }
                     if (board.getSelectedShape() instanceof Rectangle) {
                         Rectangle rectangle = (Rectangle) board.getSelectedShape();
-                        rectangle.setWidth(newWidth);
-                        rectangle.setHeight(newHeight);
+                        newWidth = rectangle.getWidth() + newWidth;
+                        if (newWidth >= 0) {
+                            rectangle.setWidth(newWidth * .3);
+                        }
+                        newHeight = rectangle.getHeight() + newHeight;
+                        if (newHeight >= 0) {
+                            rectangle.setHeight(newHeight * .3);
+                        }
                     } else if (board.getSelectedShape() instanceof Ellipse) {
+                        if (mouseX < shapeX) {
+                            newWidth = shapeX - mouseX;
+                        }
+                        if (mouseY < shapeY) {
+                            newHeight = shapeY - mouseY;
+                        }
                         Ellipse ellipse = (Ellipse) board.getSelectedShape();
                         ellipse.setRadiusX(newWidth / 2);
                         ellipse.setRadiusY(newHeight / 2);

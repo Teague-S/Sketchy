@@ -7,6 +7,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -19,8 +21,10 @@ public class PaneOrganizer {
 
     private BorderPane root;
     private Board board;
+    private Stage stage;
 
-    public PaneOrganizer() {
+    public PaneOrganizer(Stage stage) {
+        this.stage = stage;
         this.root = new BorderPane();
         this.setupCenter();
         this.setupButtons();
@@ -119,11 +123,18 @@ public class PaneOrganizer {
         });
         Button save = new Button("Save");
         save.setOnAction(e -> {
-            this.board.saveDrawing();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open File");
+            this.board.saveDrawing(fileChooser.showSaveDialog(this.stage));
         });
         Button load = new Button("Load");
         load.setOnAction(e -> {
-            this.board.loadDrawing();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Load File");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("All Files", "."),
+                    new FileChooser.ExtensionFilter("JavaFX Scene Builder", "*.fxml"));
+            this.board.loadDrawing(fileChooser.showOpenDialog(this.stage));
         });
         buttonPanel.getChildren().addAll(shapeTitle, selectShape, drawWithPen, drawRectangle, drawEllipse, colorTitle,
                 colorPicker, shapeActionsTitle, fill, delete, raise, lower, operationsTitle, undo, redo, save, load);

@@ -1,5 +1,11 @@
 package main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Stack;
 import commands.AddEllipseCommand;
@@ -19,11 +25,11 @@ import javafx.scene.shape.Shape;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Polyline;
 
-public class Board {
+public class Board implements Serializable {
     private Pane pane;
     private boolean drawingEnabled;
     private boolean selectEnabled;
-    private ArrayList<Object> shapeList = new ArrayList<>();
+    private ArrayList<Shape> shapeList = new ArrayList<>();
     public Shape selectedShape;
     private Color selectedColor;
     private Stack<Command> undoStack = new Stack<>();
@@ -65,6 +71,7 @@ public class Board {
                 polyline = new Polyline();
                 polyline.getPoints().addAll(e.getX(), e.getY());
                 shapeList.add(polyline);
+                polyline.setStroke(selectedColor);
                 this.pane.getChildren().add(polyline);
                 undoStack.push(new AddLineCommand(polyline, shapeList, pane));
                 redoStack.clear();
@@ -72,6 +79,7 @@ public class Board {
         });
         this.pane.setOnMouseDragged(e -> {
             if (drawingEnabled && !selectEnabled) {
+                polyline.setStroke(selectedColor);
                 polyline.getPoints().addAll(e.getX(), e.getY());
             }
         });
@@ -86,7 +94,29 @@ public class Board {
     }
 
     public void selectShape(double x, double y) {
-        for (Object shape : shapeList) {
+        // if (selectEnabled) {
+        // for (Object shape : shapeList) {
+        // if (shape instanceof Ellipse) {
+        // Ellipse ellipse = (Ellipse) shape;
+        // if (ellipse.contains(x, y)) {
+        // if (selectedShape != null) {
+        // selectedShape.setStroke(Color.TRANSPARENT);
+        // }
+        // selectedShape = SelectShape.selectShape(ellipse);
+        // }
+        // } else if (shape instanceof Rectangle) {
+        // Rectangle rectangle = (Rectangle) shape;
+        // if (rectangle.contains(x, y)) {
+        // if (selectedShape != null) {
+        // selectedShape.setStroke(Color.TRANSPARENT);
+        // }
+        // selectedShape = SelectShape.selectShape(rectangle);
+        // }
+        // }
+        // }
+        // }
+        for (int i = shapeList.size() - 1; i >= 0; i--) {
+            Shape shape = shapeList.get(i);
             if (shape instanceof Ellipse) {
                 Ellipse ellipse = (Ellipse) shape;
                 if (ellipse.contains(x, y)) {
@@ -94,6 +124,7 @@ public class Board {
                         selectedShape.setStroke(Color.TRANSPARENT);
                     }
                     selectedShape = SelectShape.selectShape(ellipse);
+                    break;
                 }
             } else if (shape instanceof Rectangle) {
                 Rectangle rectangle = (Rectangle) shape;
@@ -102,9 +133,11 @@ public class Board {
                         selectedShape.setStroke(Color.TRANSPARENT);
                     }
                     selectedShape = SelectShape.selectShape(rectangle);
+                    break;
                 }
             }
         }
+
     }
 
     public void setFill() {
@@ -169,12 +202,25 @@ public class Board {
         }
     }
 
-    public void saveDrawing() {
-
+    public void saveDrawing(File file) {
+        try (FileOutputStream fos = new FileOutputStream(file);
+                ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(shapeList);
+        } catch (Exception e) {
+            System.out.println("Error while saving file: " + e.getMessage());
+        }
     }
 
-    public void loadDrawing() {
-
+    @SuppressWarnings("unchecked")
+    public void loadDrawing(File file) {
+        try (FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis)) {
+            shapeList = (ArrayList<Shape>) ois.readObject();
+            for (Shape shape : shapeList) {
+                pane.getChildren().add(shape);
+            }
+        } catch (Exception e) {
+            System.out.println("Error while loading file: " + e.getMessage());
+        }
     }
-
 }

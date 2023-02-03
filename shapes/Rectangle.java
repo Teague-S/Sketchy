@@ -1,7 +1,8 @@
 package shapes;
 
-public class Rectangle {
+import java.io.Serializable;
+
+public class Rectangle implements Serializable {
     public Rectangle() {
-        new javafx.scene.shape.Rectangle();
     }
 }

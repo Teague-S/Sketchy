@@ -3,14 +3,15 @@ package commands;
 import java.util.ArrayList;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Shape;
 import main.Command;
 
 public class AddLineCommand implements Command {
     Polyline polyline;
-    ArrayList<Object> shapeList;
+    ArrayList<Shape> shapeList;
     Pane pane;
 
-    public AddLineCommand(Polyline polyline, ArrayList<Object> shapeList, Pane pane) {
+    public AddLineCommand(Polyline polyline, ArrayList<Shape> shapeList, Pane pane) {
 
         this.polyline = polyline;
         this.shapeList = shapeList;

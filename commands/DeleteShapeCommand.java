@@ -7,11 +7,11 @@ import main.Command;
 
 public class DeleteShapeCommand implements Command {
     private Shape shape;
-    private ArrayList<Object> shapeList;
+    private ArrayList<Shape> shapeList;
     private Pane pane;
     private int idx;
 
-    public DeleteShapeCommand(Shape shape, ArrayList<Object> shapeList, Pane pane) {
+    public DeleteShapeCommand(Shape shape, ArrayList<Shape> shapeList, Pane pane) {
         this.shape = shape;
         this.shapeList = shapeList;
         this.pane = pane;
